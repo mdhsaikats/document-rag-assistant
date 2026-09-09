@@ -1,12 +1,19 @@
-from langchain_openai import ChatOpenAI
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_classic.chains import create_retrieval_chain
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 
-def answer_question(vector_db, question: str):
-    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature = 0)
 
-    retriever = vector_db.as_retriever(search_kwargs={"k":3})
+def answer_question(vector_db, question: str):
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-3.5-flash",
+        temperature=0
+    )
+
+    retriever = vector_db.as_retriever(
+        search_kwargs={"k": 3}
+    )
+
     system_prompt = (
         "You are a helpful assistant. Use ONLY the following retrieved context "
         "to answer the question. If you don't know the answer based on the context, "
@@ -19,8 +26,18 @@ def answer_question(vector_db, question: str):
         ("human", "{input}"),
     ])
 
-    question_answer_chain = create_stuff_documents_chain(llm, prompt)
-    rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+    question_answer_chain = create_stuff_documents_chain(
+        llm,
+        prompt
+    )
 
-    response = rag_chain.invoke({"input": question})
+    rag_chain = create_retrieval_chain(
+        retriever,
+        question_answer_chain
+    )
+
+    response = rag_chain.invoke({
+        "input": question
+    })
+
     return response["answer"]

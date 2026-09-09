@@ -19,13 +19,26 @@ def main():
     else:
         vector_db = create_or_load_database()
 
-    # Ask the question
+    # Ask questions interactively
     print("\n--- System Ready ---")
-    question = "What is the main topic of this document?"
-    print(f"Question: {question}")
+    print("Type your questions below. Type 'exit' or 'quit' to end the session.")
     
-    answer = answer_question(vector_db, question)
-    print(f"\nAnswer:\n{answer}")
+    while True:
+        try:
+            question = input("\nQuestion: ")
+            if question.strip().lower() in ["exit", "quit"]:
+                print("Exiting RAG system...")
+                break
+            if not question.strip():
+                continue
+                
+            answer = answer_question(vector_db, question)
+            print(f"Answer: {answer}")
+        except KeyboardInterrupt:
+            print("\nExiting RAG system...")
+            break
+        except Exception as e:
+            print(f"Error answering question: {e}")
 
 if __name__ == "__main__":
     main()
